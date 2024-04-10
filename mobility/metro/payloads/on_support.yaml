@@ -1,0 +1,22 @@
+context:
+  location:
+    country:
+      code: IND
+    city:
+      code: '{{city_code}}'
+  domain: '{{domain}}'
+  action: on_support
+  version: 2.0.0
+  bap_id: '{{bap_id}}'
+  bap_uri: '{{bap_uri}}'
+  bpp_id: '{{bpp_id}}'
+  bpp_uri: '{{bpp_uri}}'
+  transaction_id: '{{transaction_id}}'
+  message_id: '{{message_id}}'
+  timestamp: '{{timestamp}}'
+  ttl: PT30S
+message:
+  support:
+    phone: '155370'
+    email: helpline@dmrc.org
+    url: https://www.delhimetrorail.com/contact-us
