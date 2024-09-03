@@ -5,8 +5,12 @@
     "main": "index.js",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
-        "dev": "nodemon app.js mobility",
-        "start": "node app mobility"
+        "dev": "nodemon src/app.ts",
+        "start": "ts-node src/app.ts",
+        "fis": "nodemon src/app.ts FIS",
+        "trv": "nodemon src/app.ts TRV",
+        "stop": "kill $(lsof -t -i:7702)",
+        "restart": "npm run stop && npm run fis"
     },
     "keywords": [],
     "author": "",
@@ -17,6 +21,7 @@
         "ajv-formats": "^2.1.1",
         "axios": "^1.3.4",
         "config-yaml": "^1.1.6",
+        "cors": "^2.8.5",
         "dotenv": "^16.4.5",
         "express": "^4.18.2",
         "handlebars": "^4.7.7",
@@ -34,6 +39,10 @@
         "yaml": "^2.3.1"
     },
     "devDependencies": {
+        "@types/cors": "^2.8.17",
+        "@types/express": "^4.17.21",
+        "@types/node": "^22.2.0",
+        "@types/winston": "^2.4.4",
         "eslint": "^8.36.0",
         "nodemon": "^2.0.22"
     }
