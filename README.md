@@ -32,3 +32,31 @@ Command to run seller mock engine
 ```
 npm start
 ```
+
+# Run Seller mock engine with docker
+
+Install Docker 
+```
+https://docs.docker.com/engine/install/
+```
+
+Create docker build
+```
+docker build -t <tagname> .  
+```
+
+Run docker build
+```
+docker run --env-file <env-path> -p <externalport : internalport> <image tag name>
+```
+
+sample build command
+```
+docker build -t seller-mock-engine:latest .  
+```
+
+sample run command
+```
+docker run --env-file ./.env -p 4000:4000 seller-mock-engine:latest
+```
+
