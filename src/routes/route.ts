@@ -1,40 +1,54 @@
 import express from "express";
-const router= express.Router();
-import  {onRequest} from "../services/service";
+const router = express.Router();
+import { v4 as uuidv4 } from "uuid";
+import { onRequest } from "../services/service";
 import { extractPath } from "../utils/mapper/buildPayload";
 import {
   getCache,
   insertSession,
-  handleRequestForJsonMapper
+  handleRequestForJsonMapper,
 } from "../utils/mapper/utils";
-import { configLoader }  from "../utils/configs_new";
+import { configLoader } from "../utils/configs_new";
 import log from "../utils/logger";
-const logger = log()
-import axios from "axios"
-import  { exec } from 'child_process';
-import fs from "fs"
+const logger = log();
+import axios from "axios";
+import { exec } from "child_process";
+import fs from "fs";
 
-
-
-// transaction id fetch krta h || data 
+// transaction id fetch krta h || data
 router.get("/cache", async (req, res) => {
+  const logID = uuidv4();
+  logger.info("/cache api controller", { uuid: logID });
   try {
-    const response = getCache(req.query.transactionid,req.query.subscriberId) || {
+    const response = getCache(
+      req.query.transactionid,
+      req.query.subscriberId
+    ) || {
       message: "TransactionId does not have any data",
     };
 
+    logger.info("/cache api executed", { uuid: logID });
     res.send(response);
   } catch (err) {
-    logger.error("/cache  -  ", err);
+    logger.error(`/cache  error - ${err}`, { uuid: logID });
   }
 });
 
 //session create
 router.post("/mapper/session", (req, res) => {
-
+  const logID = uuidv4();
+  logger.info("/mapper/session api controller", { uuid: logID });
   const { country, cityCode, transaction_id, configName } = req.body;
 
+  logger.debug(`/mapper/session payload  ${JSON.stringify(req.body)}`, {
+    uuid: logID,
+  });
+
   if (!country || !cityCode || !transaction_id || !configName) {
+    logger.error(
+      "validations failed  country || cityCode || transaction_id || configName missing",
+      { uuid: logID }
+    );
     return res.status(400).send({
       data: "validations failed  country || cityCode || transaction_id || configName missing",
     });
@@ -51,7 +65,7 @@ router.post("/mapper/session", (req, res) => {
       filteredAdditionalFlows,
       filteredsummary,
       filtered_config,
-      filtered_default_payload
+      filtered_default_payload,
     }: any = configLoader.getConfigBasedOnFlow(configName);
 
     const session = {
@@ -66,23 +80,37 @@ router.post("/mapper/session", (req, res) => {
       protocolCalls: filteredCalls,
       additioalFlows: filteredAdditionalFlows,
       config_selector: filtered_config,
-      deafult_payload: filtered_default_payload
+      deafult_payload: filtered_default_payload,
     };
 
     insertSession(session);
+    logger.info("/mapper/session api executed", { uuid: logID });
     res.send({ sucess: true, data: session });
   } catch (e) {
-    logger.error("Error while creating session  -  ", e);
+    logger.error(`/mapper/session error - ${e}`, { uuid: logID });
     res.status(500).send("Internal Server Error");
   }
 });
 
 // on request k liye listen session.protocol calls ko update krti h -- should render
 router.post("/mapper/timeout", async (req, res) => {
-
+  const logID = uuidv4();
+  logger.info(`${req.body?.transactionId} - /mapper/timeout api controller`, {
+    uuid: logID,
+  });
   const { config, transactionId } = req.body;
 
+  logger.debug(
+    `${transactionId} - /mapper/timeout api payload - ${JSON.stringify(
+      req.body
+    )}`,
+    { uuid: logID }
+  );
+
   if (!config || !transactionId) {
+    logger.error("validations failed config || transactionid missing", {
+      uuid: logID,
+    });
     return res
       .status(400)
       .send({ data: "validations failed config || transactionid missing" });
@@ -91,6 +119,7 @@ router.post("/mapper/timeout", async (req, res) => {
   let session = getCache("jm_" + transactionId);
 
   if (!session) {
+    logger.error("No session found.", { uuid: logID });
     return res.status(400).send({ data: "No session found." });
   }
 
@@ -108,38 +137,61 @@ router.post("/mapper/timeout", async (req, res) => {
   };
 
   // insertSession(session);
+  logger.info("/mapper/timeout api executed", { uuid: logID });
   return res.status(200).send({ session });
 });
 
 // extractPath is copy code from protocol server takes in payload and path and extracts the data
 router.post("/mapper/extractPath", (req, res) => {
+  const logID = uuidv4();
+  logger.info(`/mapper/extractPath api controller`, { uuid: logID });
   const { path, obj } = req.body;
 
+  logger.debug(
+    `/mapper/extractPath api payload - ${JSON.stringify(req.body)}`,
+    { uuid: logID }
+  );
+
   if (!path || !obj) {
+    logger.error("missing path || obj", { uuid: logID });
     return res.status(400).send({ data: "missing path || obj " });
   }
   try {
     // input payload is provided along with path
     const response = extractPath(path, obj);
 
+    logger.info(`/mapper/extractPath api executed`, { uuid: logID });
     res.send({ response });
   } catch (e) {
-    logger.info("Error while extracting path  -  ", e);
+    logger.info(`/mapper/extractPath error  - ${e}`, { uuid: logID });
     res.status(400).send({ error: true, data: e });
   }
 });
 
 // if some calls needs to be reexecuted
 router.post("/mapper/repeat", async (req, res) => {
+  const logID = uuidv4();
+  logger.info(`${req.body?.transactionId} - /mapper/repeat api controller`, {
+    uuid: logID,
+  });
   const { transactionId, config } = req.body;
 
+  logger.debug(
+    `${transactionId} - /mapper/repeat api payload - ${JSON.stringify(
+      req.body
+    )}`,
+    { uuid: logID }
+  );
+
   if (!transactionId || !config) {
+    logger.error("missing transactionId || config", { uuid: logID });
     return res.status(400).send({ data: "missing transactionId || config" });
   }
 
   let session = getCache("jm_" + transactionId);
 
   if (!session) {
+    logger.error("No session found.", { uuid: logID });
     return res.status(400).send({ data: "No session found." });
   }
 
@@ -155,11 +207,10 @@ router.post("/mapper/repeat", async (req, res) => {
   let nextConfig = session.protocolCalls[config].nextRequest;
 
   while (nextConfig) {
-    if(session.protocolCalls[nextConfig] === undefined){
-      console.log("hello")
+    if (session.protocolCalls[nextConfig] === undefined) {
+      console.log("hello");
     }
     if (
- 
       !session.protocolCalls[nextConfig].shouldRender &&
       !session.protocolCalls[nextConfig].executed
     )
@@ -179,9 +230,11 @@ router.post("/mapper/repeat", async (req, res) => {
 
   insertSession(session);
 
+  logger.info(`${req.body?.transactionId} - /mapper/repeat api executed`, {
+    uuid: logID,
+  });
   res.send({ session });
 });
-
 
 // not being used
 router.post("/mapper/addFlow", (req, res) => {
@@ -193,7 +246,7 @@ router.post("/mapper/addFlow", (req, res) => {
     return res.status(400).send({ data: "No session found." });
   }
 
-  const { filteredCalls, filteredInput } : any =
+  const { filteredCalls, filteredInput }: any =
     configLoader.getConfigBasedOnFlow(configName);
 
   session.protocolCalls = { ...session.protocolCalls, ...filteredCalls };
@@ -205,28 +258,44 @@ router.post("/mapper/addFlow", (req, res) => {
 });
 
 router.get("/mapper/flows", (_req, res) => {
+  const logID = uuidv4();
+  logger.info("/mapper/flow api controller", { uuid: logID });
   const flows = configLoader.getListOfFlow();
 
   logger.info("Flows", flows);
 
+  logger.info("/mapper/flow api executed", { uuid: logID });
   res.send({ data: flows });
 });
 
-// protocol server se jo unsolicated calls at h 
-//protocol -> hits this endpoint 
+// protocol server se jo unsolicated calls at h
+//protocol -> hits this endpoint
 // to mark a call unsolicated if a call comes in a transaction id with new message id not being sent by us
 router.post("/mapper/unsolicited", async (req, res) => {
-  logger.info("Indise mapper unsolicited");
+  const logID = uuidv4();
+  logger.info(
+    `${req.body?.updatedSession?.transaction_id} - /mapper/unsolicited api controller`,
+    { uuid: logID }
+  );
   const { businessPayload, updatedSession, messageId, response } = req.body;
 
+  logger.debug(
+    `${
+      req.body?.updatedSession?.transaction_id
+    } - /mapper/unsolicited api payload - ${JSON.stringify(req.body)}`,
+    { uuid: logID }
+  );
+
   if (!businessPayload || !updatedSession || !messageId || !response) {
+    logger.error(
+      "businessPayload || updatedSession|| response || messageId not present",
+      { uuid: logID }
+    );
     return res.status(400).send({
       message:
         "businessPayload || updatedSession|| response || messageId not present",
     });
   }
-
-  
 
   handleRequestForJsonMapper(
     businessPayload,
@@ -238,19 +307,34 @@ router.post("/mapper/unsolicited", async (req, res) => {
     res
   );
 
+  logger.info(
+    `${updatedSession?.transaction_id} - /mapper/unsolicited api controller executed`,
+    { uuid: logID }
+  );
   res.send({ success: true });
 });
 
-
-// baki calls k liye protocol server se jo responses atey h wo idhar atey h 
-// on_search || on_select for buyer case if async mode 
+// baki calls k liye protocol server se jo responses atey h wo idhar atey h
+// on_search || on_select for buyer case if async mode
 router.post("/mapper/ondc", async (req, res) => {
-  logger.info("inside mapper config");
+  const logID = uuidv4();
+  logger.info(
+    `${req.body?.updatedSession?.transaction_id} - /mapper/ondc api controller`,
+    { uuid: logID }
+  );
   const { businessPayload, updatedSession, messageId, response } = req.body;
 
+  logger.debug(
+    `${
+      req.body?.updatedSession?.transaction_id
+    } - /mapper/ondc api payload - ${JSON.stringify(req.body)}`,
+    { uuid: logID }
+  );
 
   if (!businessPayload || !updatedSession || !response) {
-    logger.error("Bad Request Validation failed  businessPayload || updatedSession || response || messageId not present ")
+    logger.error(
+      "Bad Request Validation failed  businessPayload || updatedSession || response || messageId not present "
+    );
     return res.status(400).send({
       message:
         "businessPayload || updatedSession || response || messageId not present",
@@ -267,23 +351,44 @@ router.post("/mapper/ondc", async (req, res) => {
     res
   );
 
+  logger.info(
+    `${updatedSession?.transaction_id} - /mapper/ondc api controller executed`,
+    { uuid: logID }
+  );
   res.send({ success: true });
 });
 
-// sandbox ui -> buyer mock 
+// sandbox ui -> buyer mock
 router.post("/mapper/:config", async (req, res) => {
+  const logID = uuidv4();
+  logger.info(`${req.body?.transactionId} - /mapper/:config api controller`, {
+    uuid: logID,
+  });
   let { transactionId, payload } = req.body;
+  logger.debug(
+    `${transactionId} /mapper/:config api payload - ${JSON.stringify(
+      req.body
+    )}`,
+    { uuid: logID }
+  );
   const config = req.params.config;
   let session = getCache("jm_" + transactionId);
 
-  logger.info("cofig> ", config);
+  logger.info(
+    `${req.body?.transactionId} - /mapper/:config api params - config : ${config}`,
+    { uuid: logID }
+  );
 
   if (!session) {
+    logger.error(
+      `${transactionId} - /mapper/:config error - No session exists`,
+      { uuid: logID }
+    );
     return res.status(400).send({ message: "No session exists" });
   }
 
   // payload = {...payload, ...session.deafult_payload[config]}
-  payload = {...payload, ...session.protocolCalls[config].default_payload}
+  payload = { ...payload, ...session.protocolCalls[config].default_payload };
 
   // handle form
   if (session.protocolCalls[config].type === "form") {
@@ -307,16 +412,21 @@ router.post("/mapper/:config", async (req, res) => {
         sessionData: payload,
         transactionId: transactionId,
       });
-    } catch (e : any) {
+    } catch (e: any) {
       logger.error(
-        "Error while update session for protocol server: ",
-        e?.message || e
+        `${transactionId} - /mapper/:config - Error while update session for protocol server: ${
+          e?.messaage || e
+        }`,
+        { uuid: logID }
       );
       throw new Error("Error while update session for protocol server");
     }
 
     insertSession(session);
 
+    logger.info(`${transactionId} - /mapper/:config api executed`, {
+      uuid: logID,
+    });
     return res.status(200).send({ session });
   }
 
@@ -324,38 +434,34 @@ router.post("/mapper/:config", async (req, res) => {
   delete protocolSession.input;
   delete protocolSession.protocolCalls;
 
-  console.log("sending Transdcaiton ID", transactionId);
-
-
-
-
   try {
-    let response = {data:{message:{becknPayload:{context:{message_id:"dummyid"}}}}}
-    if(session.protocolCalls[config].type != "on_selector"){
-      
-     response = await axios.post(
-      `${process.env.PROTOCOL_SERVER_BASE_URL}createPayload`,
-      {
-        type: session.protocolCalls[config].type,
-        config: session.protocolCalls[config].type,
-        configName: session.configName,
-        data: payload,
-        transactionId: transactionId,
-        target: session.protocolCalls[config].target,
-        session: {
-          createSession: session.protocolCalls[config].target === "GATEWAY",
-          data: protocolSession,
-        },
-        ui:true
-      }
-    );
-  }
-
-
+    let response = {
+      data: {
+        message: { becknPayload: { context: { message_id: "dummyid" } } },
+      },
+    };
+    if (session.protocolCalls[config].type != "on_selector") {
+      response = await axios.post(
+        `${process.env.PROTOCOL_SERVER_BASE_URL}createPayload`,
+        {
+          type: session.protocolCalls[config].type,
+          config: session.protocolCalls[config].type,
+          configName: session.configName,
+          data: payload,
+          transactionId: transactionId,
+          target: session.protocolCalls[config].target,
+          session: {
+            createSession: session.protocolCalls[config].target === "GATEWAY",
+            data: protocolSession,
+          },
+          ui: true,
+        }
+      );
+    }
 
     let mode = "SYNC";
 
-    const { becknPayload, updatedSession, becknReponse, businessPayload } : any =
+    const { becknPayload, updatedSession, becknReponse, businessPayload }: any =
       response.data.message;
 
     if (!businessPayload) {
@@ -382,33 +488,29 @@ router.post("/mapper/:config", async (req, res) => {
         becknResponse: becknReponse,
       };
 
-        const nextRequest = session.protocolCalls[config].nextRequest;
+      const nextRequest = session.protocolCalls[config].nextRequest;
 
+      // skippable code (Skip or provide payload according to condition)
+      let skippable;
 
-  // skippable code (Skip or provide payload according to condition)
-  let skippable 
-  
-  if (
-    session.protocolCalls[nextRequest]?.isSkipable && Array.isArray(session.protocolCalls[nextRequest]?.isSkipable)
-  ) {
-    skippable = session.protocolCalls[nextRequest]?.isSkipable.find((element: any)=>eval(element.condition))
-  } 
-
-      if(skippable === undefined)
-      {
-              session.protocolCalls[nextRequest] = {
-        ...session.protocolCalls[nextRequest],
-        shouldRender: true,
-      };
-        // session.protocolCalls[thirdRequest].shouldRender = true;
-      }else{
-        session.protocolCalls[
-          skippable.nextRequest
-        ].shouldRender = true;
+      if (
+        session.protocolCalls[nextRequest]?.isSkipable &&
+        Array.isArray(session.protocolCalls[nextRequest]?.isSkipable)
+      ) {
+        skippable = session.protocolCalls[nextRequest]?.isSkipable.find(
+          (element: any) => eval(element.condition)
+        );
       }
 
-
-
+      if (skippable === undefined) {
+        session.protocolCalls[nextRequest] = {
+          ...session.protocolCalls[nextRequest],
+          shouldRender: true,
+        };
+        // session.protocolCalls[thirdRequest].shouldRender = true;
+      } else {
+        session.protocolCalls[skippable.nextRequest].shouldRender = true;
+      }
     } else {
       session.protocolCalls[config] = {
         ...session.protocolCalls[config],
@@ -444,8 +546,18 @@ router.post("/mapper/:config", async (req, res) => {
 
     insertSession(session);
 
+    logger.info(`${transactionId} - /mapper/:config api executed`, {
+      uuid: logID,
+    });
+
     res.status(200).send({ response: response.data, session });
   } catch (e: any) {
+    logger.error(
+      `${transactionId} - /mapper/:config - Error while sending request  -  ${
+        e?.response?.data || e
+      }`,
+      { uuid: logID }
+    );
     logger.error("Error while sending request  -  ", e?.response?.data || e);
     return res.status(500).send({ message: "Error while sending request", e });
   }
@@ -453,15 +565,23 @@ router.post("/mapper/:config", async (req, res) => {
 
 // use nhi hota
 router.post("/submissionId", async (req, res) => {
+  const logID = uuidv4();
+  logger.info(`/submissionId api controller`, { uuid: logID });
+
   const { url } = req.body;
+  logger.debug(`/submissionId api payload - ${JSON.stringify(req.body)}`, {
+    uuid: logID,
+  });
 
   try {
     const response = await axios.post(url, {});
 
-    console.log("response", response);
-
+    logger.info(`/submissionId api controller executed`, {
+      uuid: logID,
+    });
     res.send({ id: response.data.submission_id });
-  } catch (e : any) {
+  } catch (e: any) {
+    logger.error(`/submissionId  error - ${e}`, { uuid: logID });
     res.status(400).send({ error: true, message: e.message || e });
   }
 });
@@ -475,20 +595,21 @@ router.post("/executeTransaction/:transactionId", async (req, res) => {
   session.protocolCalls;
 });
 
-router.get("/restart",(req,res)=>{
-  res.send('Server restarted successfully');
+router.get("/restart", (req, res) => {
+  const logID = uuidv4();
+  logger.info(`/restart api controller`, { uuid: logID });
+
+  res.send("Server restarted successfully");
   fs.appendFile("test.js", "contentToAppend", (err) => {
     if (err) throw err;
-    console.log('Content appended to file!');
+    logger.info("/restart - Content appended to file!");
   });
-// });
-})
+  // });
+});
 
 router.all("/*", (req, res) => {
-  console.log("call received")
-  return onRequest(req,res);
-  });
-
-
+  console.log("call received");
+  return onRequest(req, res);
+});
 
 export default router;
