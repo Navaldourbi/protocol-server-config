@@ -30,25 +30,48 @@ function getLogger() {
     }
   );
   const log = config.getLog();
-  logger = createLogger({
-    level: log,
-    format: combine(timestamp(), colorize(), myFormat),
-    transports: [
-      new LokiTransport({
-        host: process.env.LOKI_HOST as string,
-        labels: {
-          app: process.env.LOKI_APP_NAME || `infra_seller_mock_engine`,
+  if(process.env.USE_LOKI){
+    logger = createLogger({
+      level: process.env.LOG_LEVEL || "info",
+      format: combine(timestamp(), colorize(), myFormat),
+      transports: [
+        new LokiTransport({
+          host: process.env.LOKI_HOST as string,
+          labels: {
+            app:
+              process.env.LOKI_APP_NAME ||
+              `infra_dev
+            `,
+          },
+          json: true,
+          format: format.json(),
+          replaceTimestamp: true,
+          onConnectionError: (err: any) => logger.error(err),
+        }),
+        new transports.Console({
+          format: combine(timestamp(), colorize(), myFormat),
+        }),
+      ],
+    });
+  }else{
+    logger = createLogger({
+      level: `{
+        log: {
+          level: "DEBUG",
+          output_type: "file",
+          out_file: "/logs/log_file.log",
         },
-        json: true,
-        format: format.json(),
-        replaceTimestamp: true,
-        onConnectionError: (err: any) => logger.error(err),
-      }),
-      new transports.Console({
-        format: combine(timestamp(), colorize(), myFormat),
-      }),
-    ],
-  });
+      }`,
+  
+      format: combine(timestamp(), colorize(), myFormat),
+      transports: [
+        new transports.Console({
+          level: "debug",
+        }),
+        new transports.Console(),
+      ],
+    });
+  }
   return logger;
 }
 
