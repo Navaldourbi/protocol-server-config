@@ -607,9 +607,9 @@ router.get("/restart", (req, res) => {
   // });
 });
 
-router.all("/*", (req, res) => {
-  console.log("call received");
-  return onRequest(req, res);
-});
+// router.all("/*", (req, res) => {
+//   console.log("call received");
+//   return onRequest(req, res);
+// });
 
 export default router;
