@@ -23,7 +23,7 @@ var logger;
 const validateSchema = async (context : any) => {
   logger = log.init();
   logger.info(
-    `Inside schema validation service for ${context?.req_body?.context?.action} api`
+    `Inside schema validation service for ${context?.req_body?.context?.action} api `
   );
   try {
     const validate = ajv.compile(context.apiConfig.schema);

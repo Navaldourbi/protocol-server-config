@@ -17,9 +17,9 @@ class ConfigLoader {
     try {
       if (process.env.localConfig === "true") {
         const config = yaml.parse(
-          fs.readFileSync(path.join(__dirname, "../../configs/index.yaml"), "utf8")
+          fs.readFileSync(path.join(__dirname, "../../seller-mock-config/configs/igm/index.yaml"), "utf8")
         );
-        const schema = await $RefParser.dereference(config);
+        const schema = await $RefParser.dereference("/Users/naval/Desktop/untitled folder 2/seller-mock-engine/seller-mock-config/configs/igm/index.yaml");
 
         this.config = schema;
         return schema

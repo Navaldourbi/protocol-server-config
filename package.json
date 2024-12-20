@@ -46,6 +46,7 @@
         "@types/uuid": "^10.0.0",
         "@types/winston": "^2.4.4",
         "eslint": "^8.36.0",
-        "nodemon": "^2.0.22"
+        "nodemon": "^2.0.22",
+        "ts-node": "^10.9.2"
     }
 }

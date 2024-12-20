@@ -82,7 +82,6 @@ router.post("/mapper/session", (req, res) => {
       config_selector: filtered_config,
       deafult_payload: filtered_default_payload,
     };
-
     insertSession(session);
     logger.info("/mapper/session api executed", { uuid: logID });
     res.send({ sucess: true, data: session });
@@ -278,7 +277,7 @@ router.post("/mapper/unsolicited", async (req, res) => {
     { uuid: logID }
   );
   const { businessPayload, updatedSession, messageId, response } = req.body;
-
+  console.log("mapperunsolicited")
   logger.debug(
     `${
       req.body?.updatedSession?.transaction_id
@@ -407,6 +406,7 @@ router.post("/mapper/:config", async (req, res) => {
       shouldRender: true,
     };
 
+    console.log(`${process.env.PROTOCOL_SERVER_BASE_URL}updateSession`,"pathh21")
     try {
       await axios.post(`${process.env.PROTOCOL_SERVER_BASE_URL}updateSession`, {
         sessionData: payload,

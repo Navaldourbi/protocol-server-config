@@ -80,6 +80,7 @@ const handleRequestForJsonMapper = async (
       transaction_id : sessionId,
       configName: updatedSession.configName
     }
+    console.log("pathe222",`${process.env.DEPLOYED_URL}/mapper/session}`)
     const result = await axios.post(`${process.env.DEPLOYED_URL}/mapper/session`,sessionCreateObject)
      session = getCache("jm_" + sessionId);
 
@@ -185,7 +186,7 @@ let nextRequest = config
       ack,
     ],
   };
-
+  console.log("sessionprotocolcalls",session.protocolCalls)
   const thirdRequest = session.protocolCalls[nextRequest].nextRequest;
   
   if (thirdRequest) {
