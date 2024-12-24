@@ -58,6 +58,7 @@ const handleRequestForJsonMapper = async (
   res: Response
 ) => {
   try{
+    console.log("SesstionID",sessionId)
     const action = response?.context.action
     if(action === undefined){
       throw new Error ("action not found in the incoming config")
@@ -71,7 +72,6 @@ const handleRequestForJsonMapper = async (
   };
 
   let session = getCache("jm_" + sessionId);
-
   if (!session) {
     // if session does not exist then create the session in seller ui
     const sessionCreateObject = {
@@ -186,9 +186,7 @@ let nextRequest = config
       ack,
     ],
   };
-  console.log("sessionprotocolcalls",session.protocolCalls)
   const thirdRequest = session.protocolCalls[nextRequest].nextRequest;
-  
   if (thirdRequest) {
     // if (protocolCalls[thirdRequest].isSkipable) {
     //   protocolCalls[

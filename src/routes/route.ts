@@ -14,6 +14,7 @@ const logger = log();
 import axios from "axios";
 import { exec } from "child_process";
 import fs from "fs";
+import { request } from "http";
 
 // transaction id fetch krta h || data
 router.get("/cache", async (req, res) => {
@@ -207,7 +208,6 @@ router.post("/mapper/repeat", async (req, res) => {
 
   while (nextConfig) {
     if (session.protocolCalls[nextConfig] === undefined) {
-      console.log("hello");
     }
     if (
       !session.protocolCalls[nextConfig].shouldRender &&
@@ -277,7 +277,6 @@ router.post("/mapper/unsolicited", async (req, res) => {
     { uuid: logID }
   );
   const { businessPayload, updatedSession, messageId, response } = req.body;
-  console.log("mapperunsolicited")
   logger.debug(
     `${
       req.body?.updatedSession?.transaction_id
@@ -372,7 +371,6 @@ router.post("/mapper/:config", async (req, res) => {
   );
   const config = req.params.config;
   let session = getCache("jm_" + transactionId);
-
   logger.info(
     `${req.body?.transactionId} - /mapper/:config api params - config : ${config}`,
     { uuid: logID }
@@ -398,7 +396,6 @@ router.post("/mapper/:config", async (req, res) => {
       businessPayload: payload,
     };
     session = { ...session, ...payload };
-
     const nextRequest = session.protocolCalls[config].nextRequest;
 
     session.protocolCalls[nextRequest] = {
