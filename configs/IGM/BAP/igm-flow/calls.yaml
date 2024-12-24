@@ -1,0 +1,21 @@
+calls:
+  - config: "issue"
+    mode: "ASYNC"
+    callback:
+      config: "on_issue"
+      endpoint: "mapper/ondc"
+      unsolicitedEndpoint: "mapper/unsolicited"
+  # - config: "report"
+  #   mode: "ASYNC"
+  #   callback:
+  #     config: "on_report"
+  #     endpoint: "mapper/ondc"
+  #     mode: "SYNC"
+  #     unsolicitedEndpoint: "mapper/unsolicited"
+  # - config: "recon"
+  #   mode: "ASYNC"
+  #   callback:
+  #     config: "on_recon"
+  #     endpoint: "mapper/ondc"
+  #     mode: "SYNC"
+  #     unsolicitedEndpoint: "mapper/unsolicited"

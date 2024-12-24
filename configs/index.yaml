@@ -15,3 +15,7 @@ configs:
     domain: nts
     path:
       $ref: ./nts.yaml
+  # - filename: igm_build.json
+  #   domain: igm
+  #   path:
+  #     $ref: ./igm.yaml

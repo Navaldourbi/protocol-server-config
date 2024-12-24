@@ -1,0 +1,45 @@
+
+flows:
+  - summary: NTS
+    id: igm-flow
+    createSessionAtBuyer: true
+    domain: ONDC:RET10
+    shouldDispaly: true
+    sessionData:
+      currency: INR
+      bpp_uri: https://igm-mock-service.ondc.org/seller_protocol_server_preprod
+      bpp_id: igm-mock-service.ondc.org/seller_protocol_server_preprod
+    protocol:
+      $ref: ./igm-flow/protocolMapping.yaml#/protocol
+    calls:
+      $ref: ./igm-flow/calls.yaml#/calls
+    api:
+      issue:
+          default:
+            service_url: http://localhost:5501/mapper/ondc
+            sync: false
+    ui: true
+
+
+
+flow_selector:
+  issue:
+    default:
+      config_id: "igm-flow"
+    igm-flow:
+      condition:
+          operation:
+            type: AND
+            input:
+              value:
+              - operation:
+                  type: EQUAL
+                  title: Check settlement type message code
+                  input:
+                    value:
+                      - operation:
+                          type: READ
+                          input:
+                            value: "req_body.message.issue.description.code"
+                      - "ITM004"
+      config_id  : "igm-flow"

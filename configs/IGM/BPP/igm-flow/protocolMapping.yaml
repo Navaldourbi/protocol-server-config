@@ -1,0 +1,250 @@
+protocol:
+  issue:
+    sessionData:
+      - business_key: bap_id
+        extractionPath: context.bap_id
+      - business_key: bap_uri
+        extractionPath: context.bap_uri
+      - business_key: cityCode
+        extractionPath: context.location.city.code || session.cityCode
+      - business_key: countryCode
+        extractionPath: context.location.country.code || session.countryCode
+      - business_key: message_id
+        extractionPath: context.message_id
+
+#store order details etc in session
+      # k
+
+      - business_key: context.bap_id
+        extractionPath: context.bap_id
+      - business_key: context.bap_uri
+        extractionPath: context.bap_uri
+      - business_key: context.bpp_id
+        extractionPath: context.bpp_id
+      - business_key: context.bpp_uri
+        extractionPath: context.bpp_uri
+      - business_key: context.core_version
+        extractionPath: context.core_version
+
+      - business_key: issueId
+        extractionPath:  message.issue.id
+
+      - business_key: issuelevel
+        extractionPath:  message.issue.level
+      
+      - business_key: issueStatus
+        extractionPath:  message.issue.status
+      
+      - business_key: issuelevel
+        extractionPath:  message.issue.level
+      
+      - business_key: expected_response_time
+        extractionPath:  message.issue.expected_response_time
+
+      - business_key: expected_resolution_time
+        extractionPath:  message.issue.expected_resolution_time
+
+      - business_key: sourceId
+        extractionPath:  message.issue.source_id
+      
+      - business_key: lastactionid
+        extractionPath:  message.issue.last_action_id
+      
+      - business_key: description
+        extractionPath:  message.issue.description
+
+      - business_key: actors
+        extractionPath:  message.issue.actors
+
+      - business_key: complainantid
+        extractionPath:  message.issue.complainant_id
+
+      - business_key: refs
+        extractionPath:  message.issue.refs
+
+
+      # - business_key: issue_data
+      #   # extractionPath: context.message_id
+      #   extractionPath: "message.settlement.orders[]{order_id:id, order_amount:amount.value,  inter_participant_amount:inter_participant.amount.value,collector_amount: collector.amount.value,self_amount:self.amount.value  ,    provider_id:provider.id, provider_name: provider.name,  provider_account_no : provider.bank_details.account_no,  provider_ifsc_code: provider.bank_details.ifsc_code, provider_amount: provider.amount.value   }"
+
+    mapping:
+      - business_key: context.action
+        extractionPath: context.action
+      - business_key: context.transaction_id
+        extractionPath: context.transaction_id
+      - business_key: context.message_id
+        extractionPath: context.message_id
+
+        #message
+      
+      - business_key: issue.id
+        extractionPath:  message.issue.id
+
+      - business_key: issue.level
+        extractionPath:  message.issue.level
+      
+      - business_key: issue.status
+        extractionPath:  message.issue.status
+
+      - business_key: issue.source_id
+        extractionPath:  message.issue.source_id
+
+      - business_key: complaint_id
+        extractionPath:  message.issue.complaint_id
+
+      - business_key: issue.description
+        extractionPath:  message.issue.description
+
+      - business_key: issue.refs
+        extractionPath:  message.issue.refs
+
+      - business_key: issue.actors
+        extractionPath:  message.issue.actors
+
+      - business_key: issue.actions
+        extractionPath:  message.issue.actions
+
+      - business_key: issue.expected_resolution_time
+        extractionPath:  message.issue.expected_resolution_time
+
+      - business_key: expectedresponsetime
+        extractionPath:  message.issue.expected_response_time
+      
+      - business_key: issue.expected_response_time
+        extractionPath:  message.issue.expected_response_time
+      
+      - business_key: issue.complaint_id
+        extractionPath:  message.issue.complaint_id
+      
+      - business_key: issue.last_action_id
+        extractionPath:  message.issue.last_action_id
+
+      # - business_key: message.settlement.orders
+      #   extractionPath: "message.settlement.orders[]{id:order_id, order_amount:amount.value,  inter_participant_amount:inter_participant.amount.value,collector_amount: collector.amount.value,self_amount:self.amount.value  ,    provider_id:provider.id, provider_name: provider.name,  provider_account_no : provider.bank_details.account_no,  provider_ifsc_code: provider.bank_details.ifsc_code, provider_amount: provider.amount.value   }"
+ 
+
+  on_issue:
+    session:
+      - beckn_key: issue.status
+        value: data.status
+      - beckn_key: issue.actions
+        value: data.actions
+      - beckn_key: issue.actors
+        value: data.actors
+      - beckn_key: issue.actors
+        value: data.actors
+
+
+      # - beckn_key: provider_status
+      #   value: data.provider_status
+      # - beckn_key: provider_reference_no
+      #   value: data.provider_reference_no
+
+    mapping:
+      - beckn_key: context
+        value: session
+        compute: buildContext(session, action)
+
+      # - beckn_key: context.bpp_uri
+      #   value: session.bpp_uri
+      
+      # - beckn_key: context.bpp_id
+      #   value: session.bpp_id
+      
+      # - beckn_key: context.bap_id
+      #   value: session.bap_id
+       
+      - beckn_key: message.update_target.path
+        value: '"issue.actions"'
+      
+      - beckn_key: message.update_target.actions
+        value: '"APPENDED"'
+      
+      - beckn_key: message.experiment
+        value: session.reference_no
+
+      - beckn_key: message.issue.id
+        value: session.issueId
+      
+      - beckn_key: message.issue.level
+        value: session.issuelevel
+
+      - beckn_key: message.issue.status
+        value: data.status || session.issue.status
+
+      - beckn_key: message.issue.expected_response_time
+        value:  session.expected_response_time
+
+      - beckn_key: message.issue.expected_resolution_time
+        value:  session.expected_resolution_time
+
+      - beckn_key: message.issue.refs
+        value:  session.refs
+
+      - beckn_key: message.issue.actors
+        value:  session.actors 
+
+      - beckn_key: message.issue.sourceid
+        value:  session.source_id
+
+      - beckn_key: message.issue.complaint_id
+        value:  session.complaintid 
+
+      - beckn_key: message.issue.description
+        value:  session.description
+      
+      - beckn_key: message.issue.last_action_id
+        value: session.lastactionid
+
+      - beckn_key: message.issue.action
+        value: session.action
+
+  # #provider mapping
+  #     - beckn_key: message.issue.id
+  #       value:  session.issueId
+  #     - beckn_key: message.issue.level
+  #       value:  session.issuelevel
+  #     - beckn_key: message.issue.status
+  #       value:  session.issueStatus
+  #     - beckn_key: message.issue.expected_response_time
+  #       value:  session.issue.expectedresponsetime
+
+  #     - beckn_key: message.settlement.orders[0].provider.reference_no
+  #       value:  data.provider_reference_no && data.provider_reference_no
+  #     - beckn_key: message.settlement.orders[0].error.code
+  #       value:  data.error_code && data.error_code
+  #     - beckn_key: message.settlement.orders[0].error.message
+  #       value:  data.error_message && data.error_message
+
+
+  #     - business_key: context.action
+  #       extractionPath: context.action
+  #     - business_key: context.transaction_id
+  #       extractionPath: context.transaction_id
+  #     - business_key: context.message_id
+  #       extractionPath: context.message_id
+  #     - business_key: order_data
+  #       extractionPath: "message.orders[]{order_id:id,  amount:amount.value }.settlements[]{settlement_id:id, payment_id: payment_id, settlement_status:status,settlement_amount:amount.value,   settlement_commission:commission.value ,   withholding_amount: withholding_amount.value, tcs_amount:tcs.value, tds_amount:tds.value, settlement_updatedat : updated_at, settlement_ref_no: settlement_ref_no}"
+
+
+  #   sessionData:
+  #     - business_key: bap_id
+  #       extractionPath: context.bap_id
+  #     - business_key: bap_uri
+  #       extractionPath: context.bap_uri
+  #     - business_key: cityCode
+  #       extractionPath: context.location.city.code || session.cityCode
+  #     - business_key: countryCode
+  #       extractionPath: context.location.country.code || session.countryCode
+  #     - business_key: message_id
+  #       extractionPath: context.message_id
+  #     - business_key: order_data
+  #       extractionPath: "message.orders[]{order_id:id,  amount:amount.value }.settlements[]{settlement_id:id, payment_id: payment_id, settlement_status:status,settlement_amount:amount.value,   settlement_commission:commission.value ,   withholding_amount: withholding_amount.value, tcs_amount:tcs.value, tds_amount:tds.value, settlement_updatedat : updated_at, settlement_ref_no: settlement_ref_no}"
+
+
+
+
+  #     #message
+  #     - business_key: order_data
+  #       extractionPath: "message.orders[]{order_id:id,  amount:amount.value }.settlements[]{settlement_id:id, payment_id: payment_id, settlement_status:status,settlement_amount:amount.value,   settlement_commission:commission.value ,   withholding_amount: withholding_amount.value, tcs_amount:tcs.value, tds_amount:tds.value, settlement_updatedat : updated_at, settlement_ref_no: settlement_ref_no}"
+
