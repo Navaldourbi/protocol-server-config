@@ -25,7 +25,7 @@ properties:
         type: string
         description: >-
           Defines the Beckn API call. Any actions other than the enumerated
-          actions are not supported by Beckn Protocol
+          actions are not supported by Beckn  Protocol
       core_version:
         type: string
         description: Version of Beckn core API specification being used

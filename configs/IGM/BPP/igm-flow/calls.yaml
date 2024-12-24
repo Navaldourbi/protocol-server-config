@@ -6,7 +6,7 @@ calls:
       config: "on_issue"
       endpoint: "mapper/ondc"
       mode: "ASYNC"
-      unsolicitedEndpoint: "/issue"
+      unsolicitedEndpoint: "/issue" 
   - config: "on_issue"
     mode: "ASYNC"
     callback:

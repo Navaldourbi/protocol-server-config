@@ -22,27 +22,9 @@ protocol:
       - beckn_key: message.issue.ref
         value: session.ref
 
-      # - beckn_key: message.settlement.orders[0].inter_participant.amount.currency
-      #   value: "'INR'"
-      # - beckn_key: message.settlement.orders[0].inter_participant.amount.value
-      #   value: session.interParticipantValue
-      # - beckn_key: message.settlement.orders[0].collector.amount.currency
-      #   value: "'INR'"
-      # - beckn_key: message.settlement.orders[0].collector.amount.value
-      #   value: session.collectorValue
 
       - beckn_key: message.issue.actors
         value: session.actors
-      # - beckn_key: message.settlement.orders[0].provider.name
-      #   value: session.providerName
-      # - beckn_key: message.settlement.orders[0].provider.bank_details.account_no
-      #   value: session.bankAccountNumber
-      # - beckn_key: message.settlement.orders[0].provider.bank_details.ifsc_code
-      #   value: session.ifscCode
-      # - beckn_key: message.settlement.orders[0].provider.amount.currency
-      #   value: "'INR'"
-      # - beckn_key: message.settlement.orders[0].provider.amount.value
-      #   value: session.providerValue
  
       - beckn_key: message.issue.source_id
         value: session.sourceid

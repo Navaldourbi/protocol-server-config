@@ -6,7 +6,7 @@ flows:
     sessionData:
       version: "2.0.0"
       bankAccountNumber: "1234567890"
-      ifscCode": "IFSC0001"
+      ifscCode": " "
 
     protocol:
       $ref: ./igm-flow/protocolMapping.yaml#/protocol

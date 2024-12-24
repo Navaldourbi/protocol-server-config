@@ -62,11 +62,6 @@ protocol:
       - business_key: refs
         extractionPath:  message.issue.refs
 
-
-      # - business_key: issue_data
-      #   # extractionPath: context.message_id
-      #   extractionPath: "message.settlement.orders[]{order_id:id, order_amount:amount.value,  inter_participant_amount:inter_participant.amount.value,collector_amount: collector.amount.value,self_amount:self.amount.value  ,    provider_id:provider.id, provider_name: provider.name,  provider_account_no : provider.bank_details.account_no,  provider_ifsc_code: provider.bank_details.ifsc_code, provider_amount: provider.amount.value   }"
-
     mapping:
       - business_key: context.action
         extractionPath: context.action

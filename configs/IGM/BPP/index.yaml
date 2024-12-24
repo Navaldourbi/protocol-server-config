@@ -1,6 +1,6 @@
 
 flows:
-  - summary: NTS
+  - summary: IGM
     id: igm-flow
     createSessionAtBuyer: true
     domain: ONDC:RET10
